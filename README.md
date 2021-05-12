@@ -30,13 +30,13 @@ python core/seedlingTools.py --tray "path/to/images"
 ```
 
 ```
-# Plot and RGB histogram 
+# Plot a RGB histogram 
 python core/seedlingTools.py --rgb "path/to/image/file"
 ```
 
 ```
-# Plot an HLS histogram 
-core/seedlingTools.py --hls "path/to/image/file"
+# Plot a HSL histogram 
+core/seedlingTools.py --hsl "path/to/image/file"
 ```
 
 # Features

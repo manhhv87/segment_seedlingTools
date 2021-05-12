@@ -5,10 +5,13 @@ import pandas as pd
 import time
 import seaborn as sns
 import os
+import argparse
 
 def get_image_list(imageDirectory):
     """
     Don't be a jerk, add docs
+
+    no time :(
     """
     print("Searching in :",imageDirectory)
     imageList = []
@@ -127,6 +130,9 @@ def seperate_night_day(imageDirectory, threshold=70):
             if '.jpg' in name:
                 imageList.append(os.path.join(root, name))
     print('Found {} .jpg images.'.format(len(imageList)))
+    if len(imageList)==0:
+        print("Exiting")
+        return
     imageList.sort()
     preMoveDict = {'file':[], 'saturationMean':[], 'luminanceMean':[], 'hueMean':[],
                    'blueMean':[], 'greenMean':[], 'redMean':[]}
@@ -255,4 +261,44 @@ def separate_seed_trays_step1(file, timing = False):
         return distanceThresh
 
 if __name__ == '__main__':
-    print("OK")
+    parser = argparse.ArgumentParser(description="Separate seedling images.")
+    parser.add_argument('-d',
+                        '--day',
+                        required=False,
+                        help='Separate images in provided path by day/night')
+    parser.add_argument('-t',
+                        '--tray',
+                        required=False,
+                        help='Separate images in provided path by tray')
+    parser.add_argument('-r',
+                        '--rgb',
+                        required=False,
+                        help='Plot RGB image histogram of file')
+    parser.add_argument('-H',
+                    '--hsl',
+                    required=False,
+                    help='Plot HSL image histogram')
+    args = parser.parse_args()
+
+    dayPath = args.day
+    trayPath = args.tray
+    rgbPath = args.rgb
+    hslPath = args.hsl
+
+    if  dayPath:
+        print("Seperating images in: " + dayPath)
+        seperate_night_day(dayPath)
+    elif trayPath:
+        print("Seperating images in: " + trayPath)
+    elif rgbPath:
+        print("Plotting image histogram of: " + rgbPath)
+        try:
+            plot_image_file_histogram_bgr(rgbPath)
+        except:
+            print("Error plotting file")
+    elif hslPath:
+        print("Plotting image histogram of: " + hslPath)
+        try:
+            plot_image_file_histogram_hls(hslPath)
+        except:
+            print("Error plotting file")
