@@ -49,3 +49,6 @@ This will separate day and images, placing them in newly created day and night d
 This will separate different seedling trays into folders labeled "1", "2", "3", "4", "5", and "6". It currently only supports images with 6 seedling trays. Your seed trays may not be the same size (in pixels) as mine in your images. You can tweak parameters in the tray_separator function to adjust this. 
 
 *Images will be moved from the original directory to the new labeled ones. This operation WILL overwrite image files with the same name so take care.*
+
+# Jupyter Notebooks
+I used these notebooks for data exploration. Feel free to take a look, though it may be sloppyish.

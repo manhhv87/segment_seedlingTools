@@ -3,7 +3,6 @@ from matplotlib import pyplot as plt
 import cv2
 import pandas as pd
 import time
-import seaborn as sns
 import os
 import argparse
 
@@ -260,6 +259,64 @@ def separate_seed_trays_step1(file, timing = False):
     else:
         return distanceThresh
 
+def find_x_critical_points(collapsedList, verbose=False):
+    criticalPoints = [0]*6
+    for i in range(len(collapsedList)):
+        if collapsedList[i] > 0 and criticalPoints[0]==0:
+            criticalPoints[0] = i
+            if verbose: print(criticalPoints[0])
+        if criticalPoints[0]!=0 and collapsedList[i] == 0 and criticalPoints[1]==0:
+            criticalPoints[1] = i
+            if verbose: print(criticalPoints[1])
+        if criticalPoints[1]!=0 and collapsedList[i] != 0 and criticalPoints[2]==0:
+            criticalPoints[2] = i
+            if verbose: print(criticalPoints[2])
+        if criticalPoints[2]!=0 and collapsedList[i] == 0 and criticalPoints[3]==0:
+            criticalPoints[3] = i
+            if verbose: print(criticalPoints[3])
+        if criticalPoints[3]!=0 and collapsedList[i] != 0 and criticalPoints[4]==0:
+            criticalPoints[4] = i
+            if verbose: print(criticalPoints[4])
+        if criticalPoints[4]!=0 and collapsedList[i] == 0 and criticalPoints[5]==0:
+            criticalPoints[5] = i
+            if verbose: print(criticalPoints[5])
+    x1 = np.mean([criticalPoints[1], criticalPoints[2]])
+    x2 = np.mean([criticalPoints[3], criticalPoints[4]])
+    return criticalPoints, x1, x2
+
+def separate_seed_trays_step2(imageTray):
+    xCollapsed = np.mean(imageTray, axis=1)
+    yDivider = np.mean(np.where(xCollapsed!=0))
+    imageTrayTop = imageTray[0:int(yDivider), :]
+    yCollapsedTop = np.mean(imageTrayTop, axis=0)
+    criticalPoints, x1Top, x2Top = find_x_critical_points(yCollapsedTop)
+    imageTrayBottom = imageTray[int(yDivider):, :]
+    criticalPoints, x1Bottom, x2Bottom = find_x_critical_points(yCollapsedBottom)
+    y1 = int(yDivider) - 800
+    y2 = int(yDivider) 
+    y3 = int(yDivider) + 800
+    x1Top = int(x1Top)
+    x2Top = int(x2Top)
+    x1Bottom = int(x1Bottom)
+    x2Bottom = int(x2Bottom)
+    return (y1, y2, y3, x1Top, x2Top, x1Bottom, x2Bottom)
+
+def separate_seed_trays_batch(imageDirectory):
+    imageList = get_image_list(imageDirectory)
+    for i, file in enumerate(imageList):
+        print("Processed Image: {}/{}".format(i+1, len(imageList)), end='\r')
+        image = cv2.imread(file)
+        imageTray = separate_seed_trays_step1(file)
+        y1, y2, y3, x1Top, x2Top, x1Bottom, x2Bottom = separate_seed_trays_step2(imageTray)
+        
+        cv2.imwrite(file.replace('day','algo/1'), image[y1:y2,0:x1Top])
+        cv2.imwrite(file.replace('day','algo/2'), image[y1:y2,x1Top:x2Top])
+        cv2.imwrite(file.replace('day','algo/3'), image[y1:y2,x2Top:])
+        cv2.imwrite(file.replace('day','algo/4'), image[y2:y3,0:x1Bottom])
+        cv2.imwrite(file.replace('day','algo/5'), image[y2:y3,x1Bottom:x2Bottom])
+        cv2.imwrite(file.replace('day','algo/6'), image[y2:y3,x2Bottom:])
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Separate seedling images.")
     parser.add_argument('-d',
@@ -278,6 +335,10 @@ if __name__ == '__main__':
                     '--hsl',
                     required=False,
                     help='Plot HSL image histogram')
+    parser.add_argument('-T',
+                    '--timelapse',
+                    required=False,
+                    help='Create timelapse from images in provided path')
     args = parser.parse_args()
 
     dayPath = args.day
@@ -302,3 +363,5 @@ if __name__ == '__main__':
             plot_image_file_histogram_hls(hslPath)
         except:
             print("Error plotting file")
+    else:
+        print("Please enter a valid argument")
