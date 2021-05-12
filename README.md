@@ -39,6 +39,11 @@ python core/seedlingTools.py --rgb "path/to/image/file"
 core/seedlingTools.py --hsl "path/to/image/file"
 ```
 
+```
+# Create a timelapse from file at 20 FPS
+core/seedlingTools.py --timelapse "path/to/image/files"
+```
+
 # Features
 ## Day/Night Separation
 This will separate day and images, placing them in newly created day and night directories respectively.
