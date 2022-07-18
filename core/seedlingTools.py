@@ -14,9 +14,9 @@ def get_image_list(imageDirectory):
     imageList = []
     for root, dirs, files in os.walk(imageDirectory, topdown=False):
         for name in files:
-            if '.jpg' in name:
+            if '.png' in name:
                 imageList.append(os.path.join(root, name))
-    print('Found {} .jpg images.'.format(len(imageList)))
+    print('Found {} .png images.'.format(len(imageList)))
     imageList.sort()
     return imageList
 
